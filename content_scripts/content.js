@@ -63,7 +63,7 @@
           case '#text':
             if(!isWhiteSpace(node.nodeValue)){
               textList.push({
-                value: escape(node.nodeValue.trim()),
+                value: node.nodeValue.trim(),
                 compStyle: window.getComputedStyle(node.parentNode)
               });
             }
@@ -72,7 +72,7 @@
           case 'input':
             if(node.value != null && !isWhiteSpace(node.value)){
               textList.push({
-              value: escape(node.value.trim()),
+              value: node.value.trim(),
               compStyle: window.getComputedStyle(node)
               });
             }
@@ -101,11 +101,11 @@
       jsonOutput = JSON.stringify(jsonOutput);
       jsonOutput = jsonOutput.slice(0,-1).concat(',"text_elements":[{');
       textList.forEach(textElement => {
-          let tmpJsonContent = '"#text":"'+textElement.value+'",';
+          let tmpJsonContent = '"#text":'+JSON.stringify(textElement.value)+',';
           jsonOutput = jsonOutput.concat(tmpJsonContent);
           for(i = 0; i < textElement.compStyle.length; i++){
               let compStyleName = textElement.compStyle[i];           
-              let jsonStyle = '"'+compStyleName+'":"'+escape(textElement.compStyle.getPropertyValue(compStyleName))+'",';
+              let jsonStyle = '"'+compStyleName+'":'+JSON.stringify(textElement.compStyle.getPropertyValue(compStyleName))+',';
               jsonOutput = jsonOutput.concat(jsonStyle);
           }
           jsonOutput = jsonOutput.slice(0,-1).concat('},{');
