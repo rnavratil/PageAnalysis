@@ -1,3 +1,6 @@
+/** 
+ * Capture message from the popup script.
+*/
 (function() {
   browser.runtime.onMessage.addListener((message) => {
     if (message.command === "start analysis") {
@@ -5,18 +8,25 @@
     }
   });
 
-  /** Zpracovává informace o textu z html souboru aktuální stránky. */
+  /** 
+   * Process text information from the html file of the current web page.
+  */
   function textAnalysis() {
     
-    let rootNode = document.querySelector('body'); // Nacist koren stromu.
-    let nodesList = rootNode.childNodes; // Prvni uroven.
-    console.log(nodesList);
-    var textList = new Array(); // Pole objektu.
-    elementParse(nodesList); // Zpracovani elementu.
-    console.log(jsonCreator()); // Vytvoreni vystupu
+    /** @global - Array of objects. Object contains text value and css code.*/
+    var textList = new Array();
 
+    let rootNode = document.querySelector('body');  // Load root of html file.
+    let nodesList = rootNode.childNodes; // Load first level.
+    console.log(nodesList); // TODO It's only for debug.
+    elementParse(nodesList);
+    console.log(jsonCreator());
 
-    // Funkce 
+     /**
+     * Determines whether the string contains only white characters.
+     * @param {string} string - text string.
+     * @returns {boolean} - Return 'true' if 'string' contains only white characters and otherwise return 'false'.
+     */
     function isWhiteSpace(string){
       let re = /^\s*$/;
       if(re.exec(string)){
@@ -25,24 +35,29 @@
       return false;
     }
 
-    // Funkce
+    /**
+     * Recursive function for processing text elements from html.
+     * @param {Array} nodesList - The first level of html elements.
+     */
     function elementParse(nodesList){
-      nodesList.forEach(node => {
+      nodesList.forEach(node => {  
         if(node.nodeName != "#text"){
-          let ppp = window.getComputedStyle(node);
-          if(ppp.getPropertyValue('display') === 'none'){
+          if(window.getComputedStyle(node).getPropertyValue('display') === 'none'){
             return;
           }
-          if(ppp.getPropertyValue('visibility') === 'hidden'){
+          if(window.getComputedStyle(node).getPropertyValue('visibility') === 'hidden'){
             return;
           } 
-        }
-        
+        } 
+
         switch(node.nodeName.toLowerCase()){
           case 'script':
             break;
           
           case 'style':
+            break;
+
+          case 'noscript':
             break;
 
           case '#text':
@@ -72,26 +87,24 @@
       });
     }
 
-    //Funkce
     /** 
-     * compStyleName je nazev css vlastnosti
-     * textlist je pole objektu
-     * textElement je objekt z pole.
+     * Creates a text string in json format.
+     * Uses values from the global field textList.
+     * @returns {string} jsonOutput - Resulting json file. 
     */
     function jsonCreator(){
       let jsonOutput = {
-          description: 'page',
+          description: 'Output from Page Analysis WebExtensions app.',
           url: window.location.href 
       
       }
       jsonOutput = JSON.stringify(jsonOutput);
       jsonOutput = jsonOutput.slice(0,-1).concat(',"text_elements":[{');
-
       textList.forEach(textElement => {
-          let tmpJsonContent = '"#text":"'+textElement.value+'",';  // Pridani textu
-          jsonOutput = jsonOutput.concat(tmpJsonContent); //spojeni
+          let tmpJsonContent = '"#text":"'+textElement.value+'",';
+          jsonOutput = jsonOutput.concat(tmpJsonContent);
           for(i = 0; i < textElement.compStyle.length; i++){
-              let compStyleName = textElement.compStyle[i]; // jmeno stylu           
+              let compStyleName = textElement.compStyle[i];           
               let jsonStyle = '"'+compStyleName+'":"'+escape(textElement.compStyle.getPropertyValue(compStyleName))+'",';
               jsonOutput = jsonOutput.concat(jsonStyle);
           }
@@ -100,6 +113,5 @@
       jsonOutput = jsonOutput.slice(0,-2).concat(']}');
       return jsonOutput;
     }
-
   }
 })();

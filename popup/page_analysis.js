@@ -1,6 +1,12 @@
+/**
+ * Execute content script after click on buttons.
+ */
 browser.tabs.executeScript({file: "/content_scripts/content.js"})
 .then(clickAction)
 
+/**
+ * Will do the action by clicking on buttons.
+ */
 function clickAction() { 
   document.addEventListener("click", (e) => {
     if (e.target.classList.contains("action")) {
@@ -8,8 +14,13 @@ function clickAction() {
         .then(startAnalysis)
     }
     if (e.target.classList.contains("options")) {
-      var opening = browser.runtime.openOptionsPage();
+      browser.runtime.openOptionsPage();
     }
+
+    /**
+     * Sends message with command.
+     * @param {Array} tabs 
+     */
     function startAnalysis(tabs) {  
       browser.tabs.sendMessage(tabs[0].id, {
             command: "start analysis",
@@ -18,6 +29,9 @@ function clickAction() {
   });
 }
 
+/**
+ * Popup menu apperance setting
+ */
 const getItem = browser.storage.local.get('myTheme');
 getItem.then(response => {
     const myColor = response.myTheme;

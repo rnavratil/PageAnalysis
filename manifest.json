@@ -3,7 +3,7 @@
   "name": "Page Analysis",
   "version": "1.0",
   
-  "description": "Web extension for text analysis",
+  "description": "Text analyzer on the current webpage.",
   "icons": {
     "48": "icons/logo-48.png"
   },
