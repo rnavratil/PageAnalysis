@@ -39,7 +39,7 @@
         // Jedna se o TEXT, ktery zpracujeme.
         if (node.nodeName === "#text" && !isWhiteSpace(node.nodeValue)) {
             textList.push({
-                value: node.nodeValue.trim(),
+                value: escape(node.nodeValue.trim()),
                 compStyle: window.getComputedStyle(node.parentNode)
             });
         }
@@ -57,7 +57,7 @@
         if(node.nodeName.toLowerCase() === 'input'){
           if(node.value != null && !isWhiteSpace(node.value)){
             textList.push({
-            value: node.value.trim(),
+            value: escape(node.value.trim()),
             compStyle: window.getComputedStyle(node)
            });
           }
@@ -70,6 +70,11 @@
     }
 
     //Funkce
+    /** 
+     * compStyleName je nazev css vlastnosti
+     * textlist je pole objektu
+     * textElement je objekt z pole.
+    */
     function jsonCreator(){
       let jsonOutput = {
           description: 'page',
@@ -80,36 +85,11 @@
       jsonOutput = jsonOutput.slice(0,-1).concat(',"text_elements":[{');
 
       textList.forEach(textElement => {
-          let tmpJsonContent = '"#text":"'+textElement.value+'",';
-          jsonOutput = jsonOutput.concat(tmpJsonContent);
+          let tmpJsonContent = '"#text":"'+textElement.value+'",';  // Pridani textu
+          jsonOutput = jsonOutput.concat(tmpJsonContent); //spojeni
           for(i = 0; i < textElement.compStyle.length; i++){
-              let compStyleName = textElement.compStyle[i];
-              if(compStyleName === "quotes"){
-                  continue; // TODO
-              }
-              if(compStyleName === "--szn-select--state-arrow-opened"){
-                continue; // TODO
-              }
-              if(compStyleName === "--szn-select--state-arrow-closed"){
-                continue; // TODO
-              }
-              if(compStyleName === "background-image"){
-                continue; // TODO
-              }
-              if(compStyleName === "--szn-select--button--icon-opened"){
-                continue; // TODO
-              }
-              if(compStyleName === "--szn-select--button--icon-closed"){
-                continue; // TODO
-              }
-              if(compStyleName === "-moz-binding"){
-                continue; // TODO
-              }
-              if(compStyleName === "font-family"){
-                continue; // TODO
-              }
-              
-              let jsonStyle = '"'+compStyleName+'":"'+textElement.compStyle.getPropertyValue(compStyleName)+'",';
+              let compStyleName = textElement.compStyle[i]; // jmeno stylu           
+              let jsonStyle = '"'+compStyleName+'":"'+escape(textElement.compStyle.getPropertyValue(compStyleName))+'",';
               jsonOutput = jsonOutput.concat(jsonStyle);
           }
           jsonOutput = jsonOutput.slice(0,-1).concat('},{');
