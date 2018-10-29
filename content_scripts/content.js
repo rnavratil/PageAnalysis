@@ -5,19 +5,16 @@
     }
   });
 
+  /** Zpracovává informace o textu z html souboru aktuální stránky. */
   function textAnalysis() {
-    // Nacist koren stromu.
-    let rootNode = document.querySelector('body');
     
-    // Prvni uroven.
-    let nodesList = rootNode.childNodes;
-  
-    // Zpracovani elementu.
+    let rootNode = document.querySelector('body'); // Nacist koren stromu.
+    let nodesList = rootNode.childNodes; // Prvni uroven.
+    console.log(nodesList);
     var textList = new Array(); // Pole objektu.
-    elementParse(nodesList);
+    elementParse(nodesList); // Zpracovani elementu.
+    console.log(jsonCreator()); // Vytvoreni vystupu
 
-    // Vytvoreni vystupu
-    console.log(jsonCreator());
 
     // Funkce 
     function isWhiteSpace(string){
@@ -31,12 +28,41 @@
     // Funkce
     function elementParse(nodesList){
       nodesList.forEach(node => {
+
+        // SCRIPT a STYLE preskakujeme
+        if(node.nodeName.toLowerCase() === "script"){
+          return;
+        }
+        if(node.nodeName.toLowerCase() === "style"){
+          return;
+        }
+        // Jedna se o TEXT, ktery zpracujeme.
         if (node.nodeName === "#text" && !isWhiteSpace(node.nodeValue)) {
             textList.push({
                 value: node.nodeValue.trim(),
                 compStyle: window.getComputedStyle(node.parentNode)
             });
         }
+        // Kontrola zda neni element skryt
+         if(node.nodeName != "#text"){
+          let ppp = window.getComputedStyle(node);
+          if(ppp.getPropertyValue('display') === 'none'){
+            return;
+          }
+          if(ppp.getPropertyValue('visibility') === 'hidden'){
+            return;
+          } 
+        }
+        // Zpracovani inputu
+        if(node.nodeName.toLowerCase() === 'input'){
+          if(node.value != null && !isWhiteSpace(node.value)){
+            textList.push({
+            value: node.value.trim(),
+            compStyle: window.getComputedStyle(node)
+           });
+          }
+        }
+        // Nacteni potomku elementu
         if (node.childNodes.length > 0) {
             elementParse(node.childNodes);
         }
@@ -47,7 +73,7 @@
     function jsonCreator(){
       let jsonOutput = {
           description: 'page',
-          url: 'seznam.cz'
+          url: window.location.href 
       
       }
       jsonOutput = JSON.stringify(jsonOutput);
@@ -61,9 +87,28 @@
               if(compStyleName === "quotes"){
                   continue; // TODO
               }
+              if(compStyleName === "--szn-select--state-arrow-opened"){
+                continue; // TODO
+              }
+              if(compStyleName === "--szn-select--state-arrow-closed"){
+                continue; // TODO
+              }
               if(compStyleName === "background-image"){
                 continue; // TODO
               }
+              if(compStyleName === "--szn-select--button--icon-opened"){
+                continue; // TODO
+              }
+              if(compStyleName === "--szn-select--button--icon-closed"){
+                continue; // TODO
+              }
+              if(compStyleName === "-moz-binding"){
+                continue; // TODO
+              }
+              if(compStyleName === "font-family"){
+                continue; // TODO
+              }
+              
               let jsonStyle = '"'+compStyleName+'":"'+textElement.compStyle.getPropertyValue(compStyleName)+'",';
               jsonOutput = jsonOutput.concat(jsonStyle);
           }

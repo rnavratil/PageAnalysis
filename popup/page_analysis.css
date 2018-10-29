@@ -1,6 +1,7 @@
 body {
     background-color:  	#F5F5F5;
     margin: 20px;
+    max-width: 190px;
 }
 
 #logo{
@@ -8,11 +9,19 @@ body {
 }
 
 #logo p{
-    color:black;
     margin-top: -4px;
     font-weight: bold;
 }
 
+#logo-image{
+    background: url(/icons/logo-48.png) ;
+    padding-top: 65px;
+    margin-left: 25%;
+    background-repeat: no-repeat;    
+}
+#image-text{
+    color:black;
+}
 .center {
     display: block;
     margin-left: auto;
@@ -22,14 +31,22 @@ body {
 }
 
 button {
-    background-color: #4CAF50;
+    background-color: #808080;
     border: none;
     color: white;
     padding: 2px;
-    padding-left: 55px;
-    padding-right: 55px;
+    width: 100%;
     text-align: center;
     text-decoration: none;
     font-size: 16px;
     cursor: pointer;
+    margin-top: 5px;
+}
+
+#popup-content{
+    width: 150px;
+}
+
+.action{
+    background-color: #4CAF50;
 }

@@ -9,12 +9,17 @@
   },
 
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
 
   "browser_action": {
     "default_icon": "icons/logo-48.png",
     "default_title": "Page Analysis",
     "default_popup": "popup/page_analysis.html"
+  },
+
+  "options_ui": {
+    "page": "options/options_page.html"
   }
 }
