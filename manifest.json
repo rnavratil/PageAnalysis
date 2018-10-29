@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "Page Analysis",
+  "version": "1.0",
+  
+  "description": "Web extension for text analysis",
+  "icons": {
+    "48": "icons/logo-48.png"
+  },
+
+  "permissions": [
+    "activeTab"
+  ],
+
+  "browser_action": {
+    "default_icon": "icons/logo-48.png",
+    "default_title": "Page Analysis",
+    "default_popup": "popup/page_analysis.html"
+  }
+}
