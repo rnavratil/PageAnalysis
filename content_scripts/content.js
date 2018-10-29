@@ -28,23 +28,7 @@
     // Funkce
     function elementParse(nodesList){
       nodesList.forEach(node => {
-
-        // SCRIPT a STYLE preskakujeme
-        if(node.nodeName.toLowerCase() === "script"){
-          return;
-        }
-        if(node.nodeName.toLowerCase() === "style"){
-          return;
-        }
-        // Jedna se o TEXT, ktery zpracujeme.
-        if (node.nodeName === "#text" && !isWhiteSpace(node.nodeValue)) {
-            textList.push({
-                value: escape(node.nodeValue.trim()),
-                compStyle: window.getComputedStyle(node.parentNode)
-            });
-        }
-        // Kontrola zda neni element skryt
-         if(node.nodeName != "#text"){
+        if(node.nodeName != "#text"){
           let ppp = window.getComputedStyle(node);
           if(ppp.getPropertyValue('display') === 'none'){
             return;
@@ -53,18 +37,37 @@
             return;
           } 
         }
-        // Zpracovani inputu
-        if(node.nodeName.toLowerCase() === 'input'){
-          if(node.value != null && !isWhiteSpace(node.value)){
-            textList.push({
-            value: escape(node.value.trim()),
-            compStyle: window.getComputedStyle(node)
-           });
-          }
-        }
-        // Nacteni potomku elementu
-        if (node.childNodes.length > 0) {
-            elementParse(node.childNodes);
+        
+        switch(node.nodeName.toLowerCase()){
+          case 'script':
+            break;
+          
+          case 'style':
+            break;
+
+          case '#text':
+            if(!isWhiteSpace(node.nodeValue)){
+              textList.push({
+                value: escape(node.nodeValue.trim()),
+                compStyle: window.getComputedStyle(node.parentNode)
+              });
+            }
+            break;
+
+          case 'input':
+            if(node.value != null && !isWhiteSpace(node.value)){
+              textList.push({
+              value: escape(node.value.trim()),
+              compStyle: window.getComputedStyle(node)
+              });
+            }
+            break;
+
+          default:
+            if (node.childNodes.length > 0) {
+              elementParse(node.childNodes);
+            }
+            break;
         }
       });
     }
