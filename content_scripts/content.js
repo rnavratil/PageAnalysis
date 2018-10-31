@@ -35,22 +35,28 @@
     }
 
     /**
+     *  Verify whether the element should be processed.
+     * @param {object} node - currently being processed html element.
+     * @returns {boolean} - 'true' if the element is to be processedand otherwise return 'false'.
+     */
+    function HiddenTest(node){
+      if(!hideElement){  // I get inside if don't search hidden elements.
+          if(window.getComputedStyle(node).getPropertyValue('display') === 'none'){
+            return false;
+          }
+          if(window.getComputedStyle(node).getPropertyValue('visibility') === 'hidden'){
+            return false;
+          } 
+      }
+      return true;
+    }
+
+    /**
      * Recursive function for processing text elements from html.
      * @param {Array} nodesList - The first level of html elements.
      */
     function elementParse(nodesList){
       nodesList.forEach(node => {  
-        if(!hideElement){
-          if(node.nodeName != "#text"){
-            if(window.getComputedStyle(node).getPropertyValue('display') === 'none'){
-              return;
-            }
-            if(window.getComputedStyle(node).getPropertyValue('visibility') === 'hidden'){
-              return;
-            } 
-          } 
-        }
-
         switch(node.nodeName.toLowerCase()){
           case 'script':
             break;
@@ -59,6 +65,9 @@
             break;
 
           case 'noscript':
+            break;
+
+          case '#comment':
             break;
 
           case '#text':
@@ -71,17 +80,21 @@
             break;
 
           case 'input':
-            if(node.value != null && !isWhiteSpace(node.value)){
-              textList.push({
-              value: node.value.trim(),
-              compStyle: window.getComputedStyle(node)
-              });
+            if(HiddenTest(node)){
+              if(node.value != null && !isWhiteSpace(node.value)){
+                textList.push({
+                value: node.value.trim(),
+                compStyle: window.getComputedStyle(node)
+                });
+              }
             }
             break;
 
           default:
-            if (node.childNodes.length > 0) {
-              elementParse(node.childNodes);
+            if(HiddenTest(node)){
+              if (node.childNodes.length > 0) {
+                elementParse(node.childNodes);
+              }
             }
             break;
         }
