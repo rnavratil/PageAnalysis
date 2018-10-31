@@ -24,28 +24,44 @@ function clickAction() {
     function startAnalysis(tabs) {  
       browser.tabs.sendMessage(tabs[0].id, {
             command: "start analysis",
+            property: hideElement
           });
     }
   });
 }
 
 /**
- * Popup menu apperance setting
+ * Popup menu apperance setting.
  */
-const getItem = browser.storage.local.get('myTheme');
-getItem.then(response => {
-    const myColor = response.myTheme;
-    if(myColor === "dark"){
-      document.getElementById('logo-image').style.background = 'url(/icons/logo-48neg.png)' ;
-      document.getElementById('logo-image').style.backgroundRepeat = 'no-repeat';
-      document.getElementById('image-text').style.color = 'white' ;
-      document.body.style.background = '#404040';
+browser.storage.local.get('myTheme')
+.then(response => {
+  if(response.myTheme === "dark"){
+    document.getElementById('logo-image').style.background = 'url(/icons/logo-48neg.png)' ;
+    document.getElementById('logo-image').style.backgroundRepeat = 'no-repeat';
+    document.getElementById('image-text').style.color = 'white' ;
+    document.body.style.background = '#404040';
 
-    }
-    else if(myColor === "classic"){
-      document.getElementById('logo-image').style.background = 'url(/icons/logo-48.png)' ;
-      document.getElementById('logo-image').style.backgroundRepeat = 'no-repeat';
-      document.getElementById('image-text').style.color = 'black' ;
-      document.body.style.background = '#F5F5F5';
-    };
+  }
+  else if(response.myTheme === "classic"){
+    document.getElementById('logo-image').style.background = 'url(/icons/logo-48.png)' ;
+    document.getElementById('logo-image').style.backgroundRepeat = 'no-repeat';
+    document.getElementById('image-text').style.color = 'black' ;
+    document.body.style.background = '#F5F5F5';
+  };
+})
+
+/** @global - Boolean */
+var hideElement;
+
+/**
+ * Search hidden elements.
+ */
+browser.storage.local.get('myHideElement')
+.then(response2 => {
+  if(response2.myHideElement === "yes"){
+      hideElement = true;
+  }
+  else{
+      hideElement = false;
+  };
 })

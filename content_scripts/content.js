@@ -4,21 +4,20 @@
 (function() {
   browser.runtime.onMessage.addListener((message) => {
     if (message.command === "start analysis") {
-      textAnalysis();
+      textAnalysis(message.property);
     }
   });
 
   /** 
    * Process text information from the html file of the current web page.
   */
-  function textAnalysis() {
+  function textAnalysis(hideElement) {
     
     /** @global - Array of objects. Object contains text value and css code.*/
     var textList = new Array();
 
     let rootNode = document.querySelector('body');  // Load root of html file.
     let nodesList = rootNode.childNodes; // Load first level.
-    console.log(nodesList); // TODO It's only for debug.
     elementParse(nodesList);
     console.log(jsonCreator());
 
@@ -41,14 +40,16 @@
      */
     function elementParse(nodesList){
       nodesList.forEach(node => {  
-        if(node.nodeName != "#text"){
-          if(window.getComputedStyle(node).getPropertyValue('display') === 'none'){
-            return;
-          }
-          if(window.getComputedStyle(node).getPropertyValue('visibility') === 'hidden'){
-            return;
+        if(!hideElement){
+          if(node.nodeName != "#text"){
+            if(window.getComputedStyle(node).getPropertyValue('display') === 'none'){
+              return;
+            }
+            if(window.getComputedStyle(node).getPropertyValue('visibility') === 'hidden'){
+              return;
+            } 
           } 
-        } 
+        }
 
         switch(node.nodeName.toLowerCase()){
           case 'script':
