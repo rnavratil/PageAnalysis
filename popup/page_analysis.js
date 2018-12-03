@@ -1,4 +1,13 @@
 /**
+ * Execute option page after click on buttons.
+ */
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("options")) {
+    browser.runtime.openOptionsPage();
+  }
+});
+
+/**
  * Execute content script after click on buttons.
  */
 browser.tabs.executeScript({file: "/content_scripts/content.js"})
@@ -13,10 +22,6 @@ function clickAction() {
       browser.tabs.query({active: true, currentWindow: true})
         .then(startAnalysis)
     }
-    if (e.target.classList.contains("options")) {
-      browser.runtime.openOptionsPage();
-    }
-
     /**
      * Sends message with command.
      * @param {Array} tabs 
