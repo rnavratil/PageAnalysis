@@ -26,13 +26,14 @@ function clickAction() {
      * Sends message with command.
      * @param {Array} tabs 
      */
-    function startAnalysis(tabs) {  
+    function startAnalysis(tabs) { 
       browser.tabs.sendMessage(tabs[0].id, {
             command: "start analysis",
             property: hideElement
           });
+          window.close();
     }
-  });
+  },{once: true});
 }
 
 /**
