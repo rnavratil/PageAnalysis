@@ -1,4 +1,10 @@
 /**
+ * Sets up theme for server address.
+ */
+document.getElementById('confirm-address').addEventListener('click', function(){
+  browser.storage.local.set({myAddress: document.getElementById('serverAddress').value})
+})
+/**
  * Sets up theme for popup menu.
  */
 document.getElementById('confirm-theme').addEventListener('click', function(){
@@ -33,4 +39,13 @@ browser.storage.local.get('myHideElement')
   else if(response.myHideElement === "no"){
     document.getElementById("hideElement-browser").value = "no";
   };
+})
+/**
+ * Sets up selected option for server address.
+ */
+browser.storage.local.get('myAddress')
+.then(response => {
+  if(response.myAddress){
+    document.getElementById("serverAddress").value = response.myAddress;
+  }
 })

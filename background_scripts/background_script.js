@@ -8,6 +8,10 @@ function handleMessage(request, sender, sendResponse) {
   if(request.command === "Tab"){ 
     sendResponse({response: "Response from background script"});
   }
+  if(request.command === "errorServerName"){ 
+    createNotification();
+    sendResponse({response: "Response from background script"});
+  }
 }
 
 function createTab(){
@@ -24,4 +28,12 @@ function createTab(){
     active: false
   });
   creating.then(onCreated, onError);
+}
+
+function createNotification(){
+    browser.notifications.create({
+      "type":"basic",
+      "title": "ERROR",
+      "message": "Server name Error. Please add valid server name. Go to options page."
+    })
 }

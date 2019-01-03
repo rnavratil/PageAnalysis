@@ -29,7 +29,8 @@ function clickAction() {
     function startAnalysis(tabs) { 
       browser.tabs.sendMessage(tabs[0].id, {
             command: "start analysis",
-            property: hideElement
+            property: hideElement,
+            server: serverAddress
           });
           window.close();
     }
@@ -56,18 +57,28 @@ browser.storage.local.get('myTheme')
   };
 })
 
-/** @global - Boolean */
-var hideElement;
+/** @global*/
+var hideElement;  // Boolean
+var serverAddress;  // string
 
 /**
  * Search hidden elements.
  */
 browser.storage.local.get('myHideElement')
-.then(response2 => {
-  if(response2.myHideElement === "yes"){
+.then(response => {
+  if(response.myHideElement === "yes"){
       hideElement = true;
   }
   else{
       hideElement = false;
   };
+})
+
+
+
+browser.storage.local.get('myAddress')
+.then(response => {
+  if(response.myAddress){
+    serverAddress = response.myAddress;
+  }
 })

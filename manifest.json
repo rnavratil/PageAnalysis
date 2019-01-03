@@ -14,7 +14,8 @@
     "webRequest",
     "<all_urls>",
     "tabs",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "notifications"
   ],
 
   "background":{

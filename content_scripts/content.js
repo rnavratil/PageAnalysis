@@ -11,24 +11,30 @@ if(!sessionStorage.getItem('firstRun')){
 */
 function handleMessage(request, sender, sendResponse) {
   if(request.command === "start analysis"){
-    textAnalysis(request.property);
+    if(!request.server){
+      // sendMessage("errorServerName"); TODO zmenit strukturu. Zbavit se textAnlysis fce
+      console.error("ERROR: Server URL is not set. Please go to the options page and set valid server URL");
+    }else{
+      textAnalysis(request.property, request.server);
+    }
   }
 }
 
 /** 
  * Process text information from the html file of the current web page.
 */
-function textAnalysis(hideElement) {
+function textAnalysis(hideElement, serverAddress) {
+ 
   /** @global - Array of objects. Object contains text value and css code.*/
   var textList = new Array();
 
-  let rootNode = document.querySelector('body');  // Load root of html file.
-  let nodesList = rootNode.childNodes; // Load first level.
+  let nodesList = document.querySelector('body').childNodes; 
   console.log(nodesList);
   elementParse(nodesList);
   let jsonFile = jsonCreator();
   console.log(jsonFile);
   sendRequest(jsonFile);
+  // TODO clear storage
 
     /**
    * Determines whether the string contains only white characters.
@@ -65,7 +71,7 @@ function textAnalysis(hideElement) {
   }
 
 
-  function sendMessage(){
+  function sendMessage(type){
     function handleResponse(message) {
       // console.log(`Message from the background script:  ${message.response}`);
     }
@@ -74,29 +80,37 @@ function textAnalysis(hideElement) {
       console.log(`Error: ${error}`);
     }
   
-    var sending = browser.runtime.sendMessage({
-      // greeting: "",
-      command: "Content"
-    });
+    if(type == "command"){
+      var sending = browser.runtime.sendMessage({command: "Content"});
+    }else if(type == "errorServerName"){
+      var sending = browser.runtime.sendMessage({command: "errorServerName"});
+    }//TODO else error
 
     sending.then(handleResponse, handleError);  
   }
 
   function sendRequest(jsonFile){
-    console.log('start');
     var xhr = new XMLHttpRequest();
-    var url = "http://localhost/index1.php/"//"http://localhost/index1.php/"; https://pageanalisis.000webhostapp.com/index2.php
-    xhr.open("POST", url, true);
+    var url = serverAddress;
+    try {
+      xhr.open("POST", url, true);
+    }
+    catch(err) {
+      console.log(err);
+      sendMessage("errorServerName")
+      return;
+    }
     xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("Access-Control-Allow-Origin", "http://localhost/index1.php/");
+    xhr.setRequestHeader("Access-Control-Allow-Origin", url);
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
         console.log(xhr.responseText);
         Storage(xhr.responseText);
-        sendMessage();
+        sendMessage("command");
+      }else{
+        // TODO kdyz nic nedojde
       }
     };
-    console.log(xhr);
     xhr.send(jsonFile);
   }
 
