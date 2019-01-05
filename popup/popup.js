@@ -10,7 +10,7 @@ document.addEventListener("click", (e) => {
 /**
  * Execute content script after click on buttons.
  */
-browser.tabs.executeScript({file: "/content_scripts/content.js"})
+browser.tabs.executeScript({file: "/content/content.js"})
 .then(clickAction)
 
 /**

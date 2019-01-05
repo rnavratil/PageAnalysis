@@ -19,17 +19,17 @@
   ],
 
   "background":{
-    "scripts": ["background_scripts/background_script.js"]
+    "scripts": ["background/background.js"]
   },
 
   "browser_action": {
     "default_icon": "icons/logo-48.png",
     "default_title": "Page Analysis",
-    "default_popup": "popup/page_analysis.html"
+    "default_popup": "popup/popup.html"
   },
 
   "options_ui": {
     "open_in_tab": true,
-    "page": "options/options_page.html"
+    "page": "options/options.html"
   }
 }

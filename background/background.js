@@ -24,7 +24,7 @@ function createTab(){
   }
 
   var creating = browser.tabs.create({
-    url:"/src/final.html",
+    url:"/result/result.html",
     active: false
   });
   creating.then(onCreated, onError);
@@ -33,7 +33,7 @@ function createTab(){
 function createNotification(){
     browser.notifications.create({
       "type":"basic",
-      "title": "ERROR",
-      "message": "Server name Error. Please add valid server name. Go to options page."
+      "title": "Page-Analysis: SERVER NAME ERROR",
+      "message": "Please go to the options page and set valid server URL"
     })
 }

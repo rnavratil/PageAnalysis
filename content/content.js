@@ -11,12 +11,7 @@ if(!sessionStorage.getItem('firstRun')){
 */
 function handleMessage(request, sender, sendResponse) {
   if(request.command === "start analysis"){
-    if(!request.server){
-      // sendMessage("errorServerName"); TODO zmenit strukturu. Zbavit se textAnlysis fce
-      console.error("ERROR: Server URL is not set. Please go to the options page and set valid server URL");
-    }else{
-      textAnalysis(request.property, request.server);
-    }
+    textAnalysis(request.property, request.server);
   }
 }
 
@@ -24,18 +19,23 @@ function handleMessage(request, sender, sendResponse) {
  * Process text information from the html file of the current web page.
 */
 function textAnalysis(hideElement, serverAddress) {
- 
+  /** Exception if server name not set */
+  if(!serverAddress){
+    sendMessage("errorServerName");
+    console.error("Page-Analysis ERROR: Server URL is not set. Please go to the options page and set valid server URL");
+    return;
+  }
+
   /** @global - Array of objects. Object contains text value and css code.*/
   var textList = new Array();
 
   let nodesList = document.querySelector('body').childNodes; 
-  console.log(nodesList);
+  console.log(nodesList); // DEBUG
   elementParse(nodesList);
   let jsonFile = jsonCreator();
-  console.log(jsonFile);
+  console.log(jsonFile); // DEBUG
   sendRequest(jsonFile);
-  // TODO clear storage
-
+ 
     /**
    * Determines whether the string contains only white characters.
    * @param {string} string - text string.
@@ -66,20 +66,11 @@ function textAnalysis(hideElement, serverAddress) {
     return true;
   }
 
-  function Storage(codes){
-    browser.storage.local.set({htmlFromServer: codes});
+  function storage(html){
+    browser.storage.local.set({htmlFromServer: html});
   }
 
-
   function sendMessage(type){
-    function handleResponse(message) {
-      // console.log(`Message from the background script:  ${message.response}`);
-    }
-
-    function handleError(error) {
-      console.log(`Error: ${error}`);
-    }
-  
     if(type == "command"){
       var sending = browser.runtime.sendMessage({command: "Content"});
     }else if(type == "errorServerName"){
@@ -87,6 +78,14 @@ function textAnalysis(hideElement, serverAddress) {
     }//TODO else error
 
     sending.then(handleResponse, handleError);  
+
+    function handleResponse(message) {
+      // console.log(`Message from the background script:  ${message.response}`);
+    }
+
+    function handleError(error) {
+      console.error(`Error: ${error}`);
+    }
   }
 
   function sendRequest(jsonFile){
@@ -105,10 +104,12 @@ function textAnalysis(hideElement, serverAddress) {
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
         console.log(xhr.responseText);
-        Storage(xhr.responseText);
+        storage(xhr.responseText);
         sendMessage("command");
-      }else{
-        // TODO kdyz nic nedojde
+      }else if (xhr.readyState === 4 && xhr.status !== 200){
+        console.error("Page-Analysis ERROR: Server response with status code: "+xhr.staus);
+        // TODO NOTIFY
+        return;
       }
     };
     xhr.send(jsonFile);

@@ -23,5 +23,5 @@ function setNewBody(){
             newBody = newBody.slice(0,-15);
         document.body.innerHTML = newBody;
     })
-    // TODO delete htmlFromServer
+    browser.storage.local.set({htmlFromServer: null});  // Clear
 }
