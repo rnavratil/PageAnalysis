@@ -1,26 +1,31 @@
+/**
+ * Create run-time message listener.
+ */
 browser.runtime.onMessage.addListener(handleMessage);
 
-function handleMessage(request, sender, sendResponse) {
-  if(request.command === "Content"){
+/**
+ * Handle messages.
+ * @param {string} request 
+ */
+function handleMessage(request) {
+  if(request.command === "fromContent"){
     createTab();
-  sendResponse({response: "Response from background script"});
-  }
-  if(request.command === "Tab"){ 
-    sendResponse({response: "Response from background script"});
   }
   if(request.command === "errorServerName"){ 
     createNotification();
-    sendResponse({response: "Response from background script"});
   }
 }
 
+/**
+ * Makes new browser tab with extension result.
+ */
 function createTab(){
   function onCreated(tab) {
-    console.log(`Created new tab: ${tab.id}`)
+    console.log("Page-Analysis: Created new tab "+tab.id);
   }
   
   function onError(error) {
-    console.log(`Error: ${error}`);
+    console.error("Page-Analysis ERROR: "+error);
   }
 
   var creating = browser.tabs.create({
@@ -30,6 +35,9 @@ function createTab(){
   creating.then(onCreated, onError);
 }
 
+/**
+ * Makes browser notification.
+ */
 function createNotification(){
     browser.notifications.create({
       "type":"basic",

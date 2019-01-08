@@ -28,7 +28,7 @@ function clickAction() {
      */
     function startAnalysis(tabs) { 
       browser.tabs.sendMessage(tabs[0].id, {
-            command: "start analysis",
+            command: "fromPopup",
             property: hideElement,
             server: serverAddress
           });
@@ -73,8 +73,6 @@ browser.storage.local.get('myHideElement')
       hideElement = false;
   };
 })
-
-
 
 browser.storage.local.get('myAddress')
 .then(response => {

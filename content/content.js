@@ -9,8 +9,8 @@ if(!sessionStorage.getItem('firstRun')){
 /** 
  * Recieve messages from the popup script.
 */
-function handleMessage(request, sender, sendResponse) {
-  if(request.command === "start analysis"){
+function handleMessage(request) {
+  if(request.command === "fromPopup"){
     textAnalysis(request.property, request.server);
   }
 }
@@ -65,37 +65,38 @@ function textAnalysis(hideElement, serverAddress) {
     }
     return true;
   }
-
+  /**
+   * Stored string value to local storage.
+   * @param {string} html - HTML from server response.
+   */
   function storage(html){
     browser.storage.local.set({htmlFromServer: html});
   }
 
+  /**
+   * Send message to background.js
+   * @param {string} type - Type of message.
+   */
   function sendMessage(type){
-    if(type == "command"){
-      var sending = browser.runtime.sendMessage({command: "Content"});
+    if(type == "toBackground"){
+      browser.runtime.sendMessage({command: "fromContent"});
     }else if(type == "errorServerName"){
-      var sending = browser.runtime.sendMessage({command: "errorServerName"});
-    }//TODO else error
-
-    sending.then(handleResponse, handleError);  
-
-    function handleResponse(message) {
-      // console.log(`Message from the background script:  ${message.response}`);
-    }
-
-    function handleError(error) {
-      console.error(`Error: ${error}`);
+      browser.runtime.sendMessage({command: "errorServerName"});
     }
   }
 
+  /**
+   * Sends server requests and receiving replies from the server.
+   * @param {string} jsonFile - Sends with request.
+   */
   function sendRequest(jsonFile){
     var xhr = new XMLHttpRequest();
     var url = serverAddress;
     try {
       xhr.open("POST", url, true);
     }
-    catch(err) {
-      console.log(err);
+    catch(error) {
+      console.log(error);
       sendMessage("errorServerName")
       return;
     }
@@ -105,7 +106,7 @@ function textAnalysis(hideElement, serverAddress) {
       if (xhr.readyState === 4 && xhr.status === 200) {
         console.log(xhr.responseText);
         storage(xhr.responseText);
-        sendMessage("command");
+        sendMessage("toBackground");
       }else if (xhr.readyState === 4 && xhr.status !== 200){
         console.error("Page-Analysis ERROR: Server response with status code: "+xhr.staus);
         // TODO NOTIFY
@@ -114,7 +115,10 @@ function textAnalysis(hideElement, serverAddress) {
     };
     xhr.send(jsonFile);
   }
-
+  /**
+   * Returns the position of the elements on the page.
+   * @param {string} element - HTML element. 
+   */
   function getPosition(element){
     let xPosition = 0;
     let yPosition = 0;
