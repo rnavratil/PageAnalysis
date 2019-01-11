@@ -109,7 +109,6 @@ function textAnalysis(hideElement, serverAddress) {
         sendMessage("toBackground");
       }else if (xhr.readyState === 4 && xhr.status !== 200){
         console.error("Page-Analysis ERROR: Server response with status code: "+xhr.staus);
-        // TODO NOTIFY
         return;
       }
     };
@@ -144,6 +143,25 @@ function textAnalysis(hideElement, serverAddress) {
     };
   }
 
+  function getSize(element){
+    // let elementHeight = 0;
+    // let elementWidth = 0;
+    let elementHeight = element.offsetHeight;
+    let elementWidth = element.offsetWidth;
+
+    // if(!elementHeight){
+    //   elementHeight = "undefined"
+    // }
+    // if(!elementWidth){
+    //   elementWidth = "undefined"
+    // }
+
+      return{
+        height: elementHeight,
+        width: elementWidth
+      };
+  }
+
   /**
    * Recursive function for processing text elements from html.
    * @param {Array} nodesList - The first level of html elements.
@@ -168,7 +186,8 @@ function textAnalysis(hideElement, serverAddress) {
             textList.push({
               value: node.nodeValue.trim(),
               compStyle: window.getComputedStyle(node.parentNode),
-              position: getPosition(node.parentNode)
+              position: getPosition(node.parentNode),
+              size: getSize(node.parentNode)
             });
           }
           break;
@@ -179,12 +198,13 @@ function textAnalysis(hideElement, serverAddress) {
               textList.push({
               value: node.value.trim(),
               compStyle: window.getComputedStyle(node),
-              position: getPosition(node.parentNode)
+              position: getPosition(node),
+              size: getSize(node)
               });
             }
           }
           break;
-
+      
         default:
           if(HiddenTest(node)){
             if (node.childNodes.length > 0) {
@@ -210,10 +230,12 @@ function textAnalysis(hideElement, serverAddress) {
     jsonOutput = JSON.stringify(jsonOutput);
     jsonOutput = jsonOutput.slice(0,-1).concat(',"text_elements":[{');
     textList.forEach(textElement => {
-        let tmpJsonContent = '"Xtext":'+JSON.stringify(textElement.value)+',';
+        let tmpJsonContent = '"Xtext":'+JSON.stringify(textElement.value)+',';  // Elements text.
         jsonOutput = jsonOutput.concat(tmpJsonContent);
-        let tmp = '"Xposition":'+JSON.stringify(textElement.position)+',';
+        let tmp = '"Xposition":'+JSON.stringify(textElement.position)+',';   // Position of Element.
         jsonOutput = jsonOutput.concat(tmp);
+        let tmpSize = '"Xsize":'+JSON.stringify(textElement.size)+','; // Size of Element
+        jsonOutput = jsonOutput.concat(tmpSize);
         for(i = 0; i < textElement.compStyle.length; i++){
             let compStyleName = textElement.compStyle[i];           
             let jsonStyle = '"'+compStyleName+'":'+JSON.stringify(textElement.compStyle.getPropertyValue(compStyleName))+',';
