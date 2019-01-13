@@ -1,23 +1,63 @@
 <html>
     <head>
         <title>Page-Analysis Options</title>
+        <link rel="stylesheet" type="text/css" href="options.css">
     </head>
     <body>
-        <h1>Server addres</h1>
-        <input type="text" id="serverAddress" name="ServerAddress" ><br>
-        <button id="confirm-address">Confirm</button> 
-        <h1>Color theme</h1>
-        <select id="theme-browser" name="select">
-            <option value="classic">Classic Theme</option>
-            <option value="dark">Dark Theme</option>
-        </select>
-        <button id="confirm-theme">Confirm</button>
-        <h1>Search hidden text element</h1>
-        <select id="hideElement-browser" name="select">
-            <option value="no">No</option>
-            <option value="yes">Yes</option>
-        </select>
-        <button id="confirm-hideElement">Confirm</button>
+        <div id="logo"></div>
+        <div id="main">
+            <div id="title">
+                <h1>Options</h1>
+            </div>
+            <div class="set">
+                <div class="set-left">
+                    <div class="set-name">
+                        <h3>Server addres</h3>
+                    </div>
+                    <div class="set-content">
+                        <input type="text" id="serverAddress" name="ServerAddress" ><br>
+                    </div>
+                    <div class="set-confirm">
+                        <button id="confirm-address">Confirm</button> 
+                    </div>
+                </div>
+                <p>Put server URL. For example: "http://localhost/server.php".</p>
+            </div>
+            <div class="set">
+                <div class="set-left">
+                    <div class="set-name">
+                        <h3>Color theme</h3>
+                    </div>
+                    <div class="set-content">
+                        <select id="theme-browser" name="select">
+                            <option value="classic">Classic Theme</option>
+                            <option value="dark">Dark Theme</option>
+                        </select>
+                    </div>
+                    <div class="set-confirm">
+                        <button id="confirm-theme">Confirm</button>
+                    </div>
+                </div>
+                <p>Choose theme which you like.</p>
+            </div>
+            <div class="set">
+                <div class="set-left">
+                    <div class="set-name">
+                        <h3>Search hidden text element</h3>
+                    </div>
+                    <div class="set-content">
+                        <select id="hideElement-browser" name="select">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+                    <div class="set-confirm">
+                        <button id="confirm-hideElement">Confirm</button>
+                    </div>
+                </div>
+                <p>Search text elements that have the CSS property 'visibility: hidden' and 'display: none'.</p>
+            </div>
+        </div>
     </body>
     <script src="options.js"></script>
 </html>
