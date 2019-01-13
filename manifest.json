@@ -5,7 +5,7 @@
   
   "description": "Text analyzer on the current webpage.",
   "icons": {
-    "48": "icons/logo-48.png"
+    "48": "icons/bluelogo-48.png"
   },
 
   "permissions": [
@@ -23,7 +23,7 @@
   },
 
   "browser_action": {
-    "default_icon": "icons/logo-48.png",
+    "default_icon": "icons/bluelogo-48.png",
     "default_title": "Page Analysis",
     "default_popup": "popup/popup.html"
   },

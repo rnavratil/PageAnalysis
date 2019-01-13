@@ -43,17 +43,23 @@ function clickAction() {
 browser.storage.local.get('myTheme')
 .then(response => {
   if(response.myTheme === "dark"){
-    document.getElementById('logo-image').style.background = 'url(/icons/logo-48neg.png)' ;
-    document.getElementById('logo-image').style.backgroundRepeat = 'no-repeat';
-    document.getElementById('image-text').style.color = 'white' ;
-    document.body.style.background = '#404040';
-
+    document.body.style.background = 'rgb(97, 97, 97)';
+    document.getElementById('logo').style.backgroundColor = 'rgb(97, 97, 97)';
+    var css = 'button{color:white;background-color:rgb(97, 97, 97)}button:hover{background-color:#4c4c4c}';
+    var style = document.createElement('style');
+    if (style.styleSheet) {
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
+    document.getElementsByTagName('head')[0].appendChild(style);
   }
   else if(response.myTheme === "classic"){
-    document.getElementById('logo-image').style.background = 'url(/icons/logo-48.png)' ;
-    document.getElementById('logo-image').style.backgroundRepeat = 'no-repeat';
-    document.getElementById('image-text').style.color = 'black' ;
-    document.body.style.background = '#F5F5F5';
+    
+    // document.getElementById('logo').style.backgroundColor = 'rgb(97, 97, 97)';
+    // document.getElementById('logo').style.backgroundColor = '#F5F5F5';
+    // document.getElementsByTagName('button').style.backgroundColor = '#F5F5F5';
+    // document.body.style.backgroundColor = '#F5F5F5';
   };
 })
 

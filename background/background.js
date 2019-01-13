@@ -42,6 +42,7 @@ function createTab(){
 function createNotification(){
     browser.notifications.create({
       "type":"basic",
+      "iconUrl": browser.extension.getURL("icons/glass-96.png"),
       "title": "Page-Analysis: SERVER NAME ERROR",
       "message": "Please go to the options page and set valid server URL"
     })

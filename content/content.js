@@ -61,7 +61,7 @@ function textAnalysis(hideElement, serverAddress) {
         }
         if(window.getComputedStyle(node).getPropertyValue('visibility') === 'hidden'){
           return false;
-        } 
+        }
     }
     return true;
   }
@@ -190,6 +190,7 @@ function textAnalysis(hideElement, serverAddress) {
               size: getSize(node.parentNode)
             });
           }
+       
           break;
 
         case 'input':
