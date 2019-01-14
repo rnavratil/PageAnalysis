@@ -45,6 +45,10 @@ browser.storage.local.get('myTheme')
   if(response.myTheme === "dark"){
     document.body.style.background = 'rgb(97, 97, 97)';
     document.getElementById('logo').style.backgroundColor = 'rgb(97, 97, 97)';
+    document.getElementById('image').style.background = 'url(../icons/darklogo-mini.png)' ;
+    document.getElementById('image').style.backgroundSize = '127px 34px';
+    document.getElementById('image').style.width = '127px';
+    document.getElementById('image').style.height = '34px';
     var css = 'button{color:white;background-color:rgb(97, 97, 97)}button:hover{background-color:#4c4c4c}';
     var style = document.createElement('style');
     if (style.styleSheet) {
@@ -54,13 +58,6 @@ browser.storage.local.get('myTheme')
     }
     document.getElementsByTagName('head')[0].appendChild(style);
   }
-  else if(response.myTheme === "classic"){
-    
-    // document.getElementById('logo').style.backgroundColor = 'rgb(97, 97, 97)';
-    // document.getElementById('logo').style.backgroundColor = '#F5F5F5';
-    // document.getElementsByTagName('button').style.backgroundColor = '#F5F5F5';
-    // document.body.style.backgroundColor = '#F5F5F5';
-  };
 })
 
 /** @global*/
