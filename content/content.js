@@ -49,6 +49,13 @@ function textAnalysis(hideElement, serverAddress) {
     return false;
   }
 
+  // function over(node){
+  //   if(window.getComputedStyle(node).getPropertyValue('overflow') === 'hidden'){
+  //     return false;
+  //   }
+  // }
+
+
   /**
    *  Verify whether the element should be processed.
    * @param {object} node - currently being processed html element.
@@ -167,8 +174,12 @@ function textAnalysis(hideElement, serverAddress) {
    * @param {Array} nodesList - The first level of html elements.
    */
   function elementParse(nodesList){
+    // deklarace a inicializace
+    let simpleText = "";
+    let simpleNode = "";
+
     nodesList.forEach(node => {  
-      switch(node.nodeName.toLowerCase()){
+      switch(node.nodeName.toLowerCase()){   // VSECHNO VELKYM V KNIZCE JE PROC
         case 'script':
           break;
         
@@ -181,15 +192,24 @@ function textAnalysis(hideElement, serverAddress) {
         case '#comment':
           break;
 
+
         case '#text':
-          if(!isWhiteSpace(node.nodeValue)){
-            textList.push({
-              value: node.nodeValue.trim(),
-              compStyle: window.getComputedStyle(node.parentNode),
-              position: getPosition(node.parentNode),
-              size: getSize(node.parentNode)
-            });
-          }
+        // Tady si ulozime text
+        // Ulozime i node
+        if(!isWhiteSpace(node.nodeValue)){
+          let texti = node.nodeValue.trim()
+          simpleText = simpleText.concat(texti);
+          simpleNode = node;
+        }
+
+          // if(!isWhiteSpace(node.nodeValue)){
+          //   textList.push({
+          //     value: node.nodeValue.trim(),
+          //     compStyle: window.getComputedStyle(node.parentNode),
+          //     position: getPosition(node.parentNode),
+          //     size: getSize(node.parentNode)
+          //   });
+          // }
        
           break;
 
@@ -207,6 +227,16 @@ function textAnalysis(hideElement, serverAddress) {
           break;
       
         default:
+
+          // if (node.nodeName.toLowerCase() == "a"){
+          //   tmpNo = node.childNodes[0];
+          //   if (tmpNo.nodeName.toLowerCase() == "#text"){
+          //     let textis = tmoNo.nodeValue.trim()
+          //     simpleText = simpleText.concat(textis);
+          //     break;
+          //   }
+          // }
+          
           if(HiddenTest(node)){
             if (node.childNodes.length > 0) {
               elementParse(node.childNodes);
@@ -215,6 +245,17 @@ function textAnalysis(hideElement, serverAddress) {
           break;
       }
     });
+    // #tady by se mel posilat text
+
+    if(simpleText !== ""){
+          textList.push({
+            value: simpleText,
+            compStyle: window.getComputedStyle(simpleNode.parentNode),
+            position: getPosition(simpleNode.parentNode),
+            size: getSize(simpleNode.parentNode)
+          });
+        }
+   
   }
 
   /** 
@@ -225,7 +266,8 @@ function textAnalysis(hideElement, serverAddress) {
   function jsonCreator(){
     let jsonOutput = {
         description: 'Output from Page Analysis WebExtensions app.',
-        url: window.location.href 
+        url: window.location.href,
+        background: document.body.style.backgroundColor
     
     }
     jsonOutput = JSON.stringify(jsonOutput);
