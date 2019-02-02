@@ -29,6 +29,8 @@ function textAnalysis(hideElement, serverAddress) {
   /** @global - Array of objects. Object contains text value and css code.*/
   var textList = new Array();
 
+  var idIndicator = -1; // First ID will be '0';
+
   let nodesList = document.querySelector('body').childNodes; 
   console.log(nodesList); // DEBUG
   elementParse(nodesList);
@@ -49,13 +51,6 @@ function textAnalysis(hideElement, serverAddress) {
     return false;
   }
 
-  // function over(node){
-  //   if(window.getComputedStyle(node).getPropertyValue('overflow') === 'hidden'){
-  //     return false;
-  //   }
-  // }
-
-
   /**
    *  Verify whether the element should be processed.
    * @param {object} node - currently being processed html element.
@@ -67,6 +62,9 @@ function textAnalysis(hideElement, serverAddress) {
           return false;
         }
         if(window.getComputedStyle(node).getPropertyValue('visibility') === 'hidden'){
+          return false;
+        }
+        if(window.getComputedStyle(node).getPropertyValue('opacity') === '0'){
           return false;
         }
     }
@@ -116,6 +114,7 @@ function textAnalysis(hideElement, serverAddress) {
         sendMessage("toBackground");
       }else if (xhr.readyState === 4 && xhr.status !== 200){
         console.error("Page-Analysis ERROR: Server response with status code: "+xhr.staus);
+        sendMessage("errorServerName");
         return;
       }
     };
@@ -169,17 +168,17 @@ function textAnalysis(hideElement, serverAddress) {
       };
   }
 
+
+
   /**
    * Recursive function for processing text elements from html.
    * @param {Array} nodesList - The first level of html elements.
    */
   function elementParse(nodesList){
-    // deklarace a inicializace
-    let simpleText = "";
-    let simpleNode = "";
-
-    nodesList.forEach(node => {  
-      switch(node.nodeName.toLowerCase()){   // VSECHNO VELKYM V KNIZCE JE PROC
+    let firstText = true; //novej nodelist byl pouzit prvni prvek??
+    for(let i = 0; i < nodesList.length; i++){
+    // nodesList.forEach(node => {  
+      switch(nodesList[i].nodeName.toLowerCase()){
         case 'script':
           break;
         
@@ -192,70 +191,73 @@ function textAnalysis(hideElement, serverAddress) {
         case '#comment':
           break;
 
-
         case '#text':
-        // Tady si ulozime text
-        // Ulozime i node
-        if(!isWhiteSpace(node.nodeValue)){
-          let texti = node.nodeValue.trim()
-          simpleText = simpleText.concat(texti);
-          simpleNode = node;
-        }
+          if(!isWhiteSpace(nodesList[i].nodeValue)){
 
-          // if(!isWhiteSpace(node.nodeValue)){
-          //   textList.push({
-          //     value: node.nodeValue.trim(),
-          //     compStyle: window.getComputedStyle(node.parentNode),
-          //     position: getPosition(node.parentNode),
-          //     size: getSize(node.parentNode)
-          //   });
-          // }
-       
+            // if(textList.length > 0){
+            // // Pokud je id stejny tak delej to co je tu psano:
+            
+            //   // Zjistim position minulyho pridanyho
+            //   let lastPosition = textList[textList.length-1].position;
+            //   // Zjistim width a height minulyho pridanyho
+            //   let lastWidth = textList[textList.length-1].size;
+            //   // Udelam Tinky Winky
+            //   let textIndent = lastWidth[1] + lastPosition[0];
+            // }
+          if (firstText){ // First text.
+            firstText = false;
+            textList.push({
+              value: nodesList[i].nodeValue.trim(),
+              compStyle: window.getComputedStyle(nodesList[i].parentNode),
+              position: getPosition(nodesList[i].parentNode),
+              size: getSize(nodesList[i].parentNode)
+            });
+          }else{ // Dalsi text
+            let lastPosition = textList[textList.length-1].position;
+            let lastWidth = textList[textList.length-1].size;
+            let textIndent = lastWidth.width + lastPosition.x; //odsazeni
+            //nova pozice
+            let newposition = getPosition(nodesList[i].parentNode);
+            newposition.y =  lastPosition.y; //posune po y ose
+            let tmppp =  window.getComputedStyle(nodesList[i].parentNode);
+            // tmppp.setProperty("text-indent", "76px", important);
+            // tmppp.setTextIndent("76px");
+            textList.push({
+              value: nodesList[i].nodeValue.trim(),
+              compStyle: tmppp,
+              position: newposition,
+              size: getSize(nodesList[i].parentNode),
+              indent: textIndent
+            });
+          }
+
+        
+          }
           break;
 
         case 'input':
-          if(HiddenTest(node)){
-            if(node.value != null && !isWhiteSpace(node.value)){
+          if(HiddenTest(nodesList[i])){
+            if(nodesList[i].value != null && !isWhiteSpace(nodesList[i].value)){
+              firstText = true;
               textList.push({
-              value: node.value.trim(),
-              compStyle: window.getComputedStyle(node),
-              position: getPosition(node),
-              size: getSize(node)
+              value: nodesList[i].value.trim(),
+              compStyle: window.getComputedStyle(nodesList[i]),
+              position: getPosition(nodesList[i]),
+              size: getSize(nodesList[i])
               });
             }
           }
           break;
       
         default:
-
-          // if (node.nodeName.toLowerCase() == "a"){
-          //   tmpNo = node.childNodes[0];
-          //   if (tmpNo.nodeName.toLowerCase() == "#text"){
-          //     let textis = tmoNo.nodeValue.trim()
-          //     simpleText = simpleText.concat(textis);
-          //     break;
-          //   }
-          // }
-          
-          if(HiddenTest(node)){
-            if (node.childNodes.length > 0) {
-              elementParse(node.childNodes);
+          if(HiddenTest(nodesList[i])){
+            if (nodesList[i].childNodes.length > 0) {
+              elementParse(nodesList[i].childNodes);
             }
           }
           break;
       }
-    });
-    // #tady by se mel posilat text
-
-    if(simpleText !== ""){
-          textList.push({
-            value: simpleText,
-            compStyle: window.getComputedStyle(simpleNode.parentNode),
-            position: getPosition(simpleNode.parentNode),
-            size: getSize(simpleNode.parentNode)
-          });
-        }
-   
+    } //foreach
   }
 
   /** 
@@ -264,12 +266,15 @@ function textAnalysis(hideElement, serverAddress) {
    * @returns {string} jsonOutput - Resulting json file. 
   */
   function jsonCreator(){
+    // let tomio = getComputedStyle(document.querySelector('body'));
+    // let okuamra = tomio.getPropertyValue("background-color");
     let jsonOutput = {
         description: 'Output from Page Analysis WebExtensions app.',
         url: window.location.href,
-        background: document.body.style.backgroundColor
+        backgroundColor: getComputedStyle(document.querySelector('body')).getPropertyValue("background-color")
     
     }
+  
     jsonOutput = JSON.stringify(jsonOutput);
     jsonOutput = jsonOutput.slice(0,-1).concat(',"text_elements":[{');
     textList.forEach(textElement => {
@@ -280,9 +285,20 @@ function textAnalysis(hideElement, serverAddress) {
         let tmpSize = '"Xsize":'+JSON.stringify(textElement.size)+','; // Size of Element
         jsonOutput = jsonOutput.concat(tmpSize);
         for(i = 0; i < textElement.compStyle.length; i++){
-            let compStyleName = textElement.compStyle[i];           
+            let compStyleName = textElement.compStyle[i]; 
+            if (compStyleName == "background-color") {
+              continue;
+            }   
+            if (compStyleName == "quotes") {
+              continue;
+            } 
+            if(compStyleName == "text-indent"){
+              let jsonStyle = '"'+compStyleName+'":'+JSON.stringify(textElement.indent+'px')+',';
+              jsonOutput = jsonOutput.concat(jsonStyle);
+            }else{          
             let jsonStyle = '"'+compStyleName+'":'+JSON.stringify(textElement.compStyle.getPropertyValue(compStyleName))+',';
             jsonOutput = jsonOutput.concat(jsonStyle);
+            }
         }
         jsonOutput = jsonOutput.slice(0,-1).concat('},{');
     });
