@@ -173,6 +173,8 @@ function textAnalysis(hideElement, serverAddress) {
     let TextListlength = textList.length;
     let boxSize = getSize(parent);
     let boxPosition = getPosition(parent);
+     let lastText = false; // Posledni pridanej text byl #TEXT
+     
     for(let i = 0; i < nodesList.length; i++){
       if(firstText){
         if(TextListlength !== textList.length){
@@ -211,6 +213,7 @@ function textAnalysis(hideElement, serverAddress) {
             // }
           if (firstText){ // First text.
             firstText = false;
+            lastText = true;
             textList.push({
               value: nodesList[i].nodeValue.trim(),
               compStyle: window.getComputedStyle(nodesList[i].parentNode),
@@ -228,13 +231,22 @@ function textAnalysis(hideElement, serverAddress) {
             textIndent = textIndent - newposition.x;
             // tmppp.setProperty("text-indent", "76px", important);
             // tmppp.setTextIndent("76px");
-            textList.push({
-              value: nodesList[i].nodeValue.trim(),
-              compStyle: tmppp,
-              position: newposition,
-              size: getSize(nodesList[i].parentNode),
-              indent: textIndent
-            });
+            // if(lastText){
+            //   textList[textList.length - 1].value = textList[textList.length - 1].value.concat(nodesList[i].nodeValue.trim());
+            // }else{
+            //   lastText = true;
+            if(lastText){
+              textList[textList.length - 1].value = textList[textList.length - 1].value.concat(nodesList[i].nodeValue.trim());
+            }else{
+              lastText = true;
+              textList.push({
+                value: nodesList[i].nodeValue.trim(),
+                compStyle: tmppp,
+                position: newposition,
+                size: getSize(nodesList[i].parentNode),
+                indent: textIndent
+              });
+             }//last text
           }
 
         
@@ -244,6 +256,7 @@ function textAnalysis(hideElement, serverAddress) {
         case 'input':
           if(HiddenTest(nodesList[i])){
             if(nodesList[i].value != null && !isWhiteSpace(nodesList[i].value)){
+              lastText = false;
               firstText = true;
               textList.push({
               value: nodesList[i].value.trim(),
@@ -273,12 +286,30 @@ function textAnalysis(hideElement, serverAddress) {
               }
             }
             if (nodesList[i].childNodes.length > 0) {
-              elementParse(nodesList[i].childNodes, nodesList[i]);
+              tmpMrda = elementParse(nodesList[i].childNodes, nodesList[i]);
+              if(tmpMrda){ // novy je true
+                if(lastText){ // puvodni je true
+                  lastText = false;
+                  break
+                }else{ // puvodni je false
+                  lastText = false;
+                  break;
+                }
+              }else{ //novy je false
+                if(lastText){ // puvodni je true
+                  lastText = true;
+                  break;
+                }else{ //puvodni je false
+                  lastText = false;
+                  break;
+                }
+              }
             }
           }
           break;
       }
     } //foreach
+    return lastText;
   }
 
   /** 
