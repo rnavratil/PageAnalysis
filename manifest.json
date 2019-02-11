@@ -17,6 +17,14 @@
     "unlimitedStorage",
     "notifications"
   ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": ["content/content.js"]
+    }
+  ],
 
   "background":{
     "scripts": ["background/background.js"]

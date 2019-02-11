@@ -1,19 +1,13 @@
-/** 
- * Create only one message listener.
-*/
-if(!sessionStorage.getItem('firstRun')){
-  browser.runtime.onMessage.addListener(handleMessage);
-  sessionStorage.setItem('firstRun', true);
-}
-
-/** 
- * Recieve messages from the popup script.
-*/
-function handleMessage(request) {
-  if(request.command === "fromPopup"){
-    textAnalysis(request.property, request.server);
+/**
+ * Create message listener.
+ */
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+      if(request.message === "fromPopup" ) {
+          textAnalysis(request.property, request.server);
+      }
   }
-}
+);
 
 /** 
  * Process text information from the html file of the current web page.
@@ -30,10 +24,10 @@ function textAnalysis(hideElement, serverAddress) {
   var textList = new Array();
 
   var idIndicator = -1; // First ID will be '0';
-
-  let nodesList = document.querySelector('body').childNodes; 
+ let rootNode = document.querySelector('body');
+  let nodesList = rootNode.childNodes; 
   console.log(nodesList); // DEBUG
-  elementParse(nodesList);
+  elementParse(nodesList, rootNode);
   let jsonFile = jsonCreator();
   console.log(jsonFile); // DEBUG
   sendRequest(jsonFile);
@@ -174,12 +168,23 @@ function textAnalysis(hideElement, serverAddress) {
    * Recursive function for processing text elements from html.
    * @param {Array} nodesList - The first level of html elements.
    */
-  function elementParse(nodesList){
+  function elementParse(nodesList, parent){
     let firstText = true; //novej nodelist byl pouzit prvni prvek??
+    let TextListlength = textList.length;
+    let boxSize = getSize(parent);
+    let boxPosition = getPosition(parent);
     for(let i = 0; i < nodesList.length; i++){
+      if(firstText){
+        if(TextListlength !== textList.length){
+          firstText = false;
+        }
+      }
     // nodesList.forEach(node => {  
       switch(nodesList[i].nodeName.toLowerCase()){
         case 'script':
+          break;
+        
+        case 'img':
           break;
         
         case 'style':
@@ -220,6 +225,7 @@ function textAnalysis(hideElement, serverAddress) {
             let newposition = getPosition(nodesList[i].parentNode);
             newposition.y =  lastPosition.y; //posune po y ose
             let tmppp =  window.getComputedStyle(nodesList[i].parentNode);
+            textIndent = textIndent - newposition.x;
             // tmppp.setProperty("text-indent", "76px", important);
             // tmppp.setTextIndent("76px");
             textList.push({
@@ -248,11 +254,26 @@ function textAnalysis(hideElement, serverAddress) {
             }
           }
           break;
-      
+        
+        case 'dd':
+        console.log("go");
         default:
+        
           if(HiddenTest(nodesList[i])){
+            if(nodesList[i].nodeName.toLowerCase() === "a"){
+              if(nodesList[i].childNodes.length === 1){
+                let aPosition =getPosition(nodesList[i]);
+                let aSize = getSize(nodesList[i]);
+                if( (aPosition.x + aSize.width - boxPosition.x)> boxSize.width) {
+                  if(nodesList[i].firstChild){
+                    textList[textList.length - 1].value = textList[textList.length - 1].value.concat(nodesList[i].firstChild.nodeValue.trim());
+                    break;
+                  }
+                }
+              }
+            }
             if (nodesList[i].childNodes.length > 0) {
-              elementParse(nodesList[i].childNodes);
+              elementParse(nodesList[i].childNodes, nodesList[i]);
             }
           }
           break;
@@ -266,8 +287,6 @@ function textAnalysis(hideElement, serverAddress) {
    * @returns {string} jsonOutput - Resulting json file. 
   */
   function jsonCreator(){
-    // let tomio = getComputedStyle(document.querySelector('body'));
-    // let okuamra = tomio.getPropertyValue("background-color");
     let jsonOutput = {
         description: 'Output from Page Analysis WebExtensions app.',
         url: window.location.href,

@@ -1,3 +1,7 @@
+/** @global*/
+var hideElement;  // Boolean
+var serverAddress;  // string
+
 /**
  * Execute option page after click on buttons.
  */
@@ -5,37 +9,18 @@ document.addEventListener("click", (e) => {
   if (e.target.classList.contains("options")) {
     browser.runtime.openOptionsPage();
   }
+  if (e.target.classList.contains("action")) {
+    browser.tabs.query({currentWindow: true, active: true}, function (tabs){
+      var activeTab = tabs[0];
+      browser.tabs.sendMessage(activeTab.id, {
+          "message": "fromPopup",
+          property: hideElement,
+          server: serverAddress
+      });
+      window.close();
+  });
+  }
 });
-
-/**
- * Execute content script after click on buttons.
- */
-browser.tabs.executeScript({file: "/content/content.js"})
-.then(clickAction)
-
-/**
- * Will do the action by clicking on buttons.
- */
-function clickAction() { 
-  document.addEventListener("click", (e) => {
-    if (e.target.classList.contains("action")) {
-      browser.tabs.query({active: true, currentWindow: true})
-        .then(startAnalysis)
-    }
-    /**
-     * Sends message with command.
-     * @param {Array} tabs 
-     */
-    function startAnalysis(tabs) { 
-      browser.tabs.sendMessage(tabs[0].id, {
-            command: "fromPopup",
-            property: hideElement,
-            server: serverAddress
-          });
-          window.close();
-    }
-  },{once: true});
-}
 
 /**
  * Popup menu apperance setting.
@@ -60,12 +45,8 @@ browser.storage.local.get('myTheme')
   }
 })
 
-/** @global*/
-var hideElement;  // Boolean
-var serverAddress;  // string
-
 /**
- * Search hidden elements.
+ * get value Search hidden elements.
  */
 browser.storage.local.get('myHideElement')
 .then(response => {
@@ -77,6 +58,9 @@ browser.storage.local.get('myHideElement')
   };
 })
 
+/**
+ * get value My address.
+ */
 browser.storage.local.get('myAddress')
 .then(response => {
   if(response.myAddress){
