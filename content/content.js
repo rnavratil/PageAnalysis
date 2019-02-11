@@ -174,7 +174,7 @@ function textAnalysis(hideElement, serverAddress) {
     let boxSize = getSize(parent);
     let boxPosition = getPosition(parent);
      let lastText = false; // Posledni pridanej text byl #TEXT
-     
+     let change = false;
     for(let i = 0; i < nodesList.length; i++){
       if(firstText){
         if(TextListlength !== textList.length){
@@ -212,6 +212,7 @@ function textAnalysis(hideElement, serverAddress) {
             //   let textIndent = lastWidth[1] + lastPosition[0];
             // }
           if (firstText){ // First text.
+            change = true;
             firstText = false;
             lastText = true;
             textList.push({
@@ -238,6 +239,7 @@ function textAnalysis(hideElement, serverAddress) {
             if(lastText){
               textList[textList.length - 1].value = textList[textList.length - 1].value.concat(nodesList[i].nodeValue.trim());
             }else{
+              change = true;
               lastText = true;
               textList.push({
                 value: nodesList[i].nodeValue.trim(),
@@ -257,6 +259,7 @@ function textAnalysis(hideElement, serverAddress) {
           if(HiddenTest(nodesList[i])){
             if(nodesList[i].value != null && !isWhiteSpace(nodesList[i].value)){
               lastText = false;
+              change = true;
               firstText = true;
               textList.push({
               value: nodesList[i].value.trim(),
@@ -279,6 +282,7 @@ function textAnalysis(hideElement, serverAddress) {
                 let aSize = getSize(nodesList[i]);
                 if( (aPosition.x + aSize.width - boxPosition.x)> boxSize.width) {
                   if(nodesList[i].firstChild){
+                    change = true;
                     textList[textList.length - 1].value = textList[textList.length - 1].value.concat(nodesList[i].firstChild.nodeValue.trim());
                     break;
                   }
@@ -288,6 +292,7 @@ function textAnalysis(hideElement, serverAddress) {
             if (nodesList[i].childNodes.length > 0) {
               tmpMrda = elementParse(nodesList[i].childNodes, nodesList[i]);
               if(tmpMrda){ // novy je true
+                change = true;
                 if(lastText){ // puvodni je true
                   lastText = false;
                   break
@@ -309,7 +314,7 @@ function textAnalysis(hideElement, serverAddress) {
           break;
       }
     } //foreach
-    return lastText;
+    return change;
   }
 
   /** 
