@@ -23,8 +23,7 @@ function textAnalysis(hideElement, serverAddress) {
   /** @global - Array of objects. Object contains text value and css code.*/
   var textList = new Array();
 
-  var idIndicator = -1; // First ID will be '0';
- let rootNode = document.querySelector('body');
+  let rootNode = document.querySelector('body');
   let nodesList = rootNode.childNodes; 
   console.log(nodesList); // DEBUG
   elementParse(nodesList, rootNode);
@@ -114,8 +113,11 @@ function textAnalysis(hideElement, serverAddress) {
     };
     xhr.send(jsonFile);
   }
+
   /**
    * Returns the position of the elements on the page.
+   * This algorythm is from:
+   * https://www.kirupa.com/html5/get_element_position_using_javascript.html
    * @param {string} element - HTML element. 
    */
   function getPosition(element){
@@ -142,184 +144,142 @@ function textAnalysis(hideElement, serverAddress) {
       y: yPosition
     };
   }
-
-  function getSize(element){
-    // let elementHeight = 0;
-    // let elementWidth = 0;
+  
+  /**
+   *  Return Size of text element.
+   * @param {object} element - parent element of pure text. 
+   */
+  function getSize(element){    
     let elementHeight = element.offsetHeight;
     let elementWidth = element.offsetWidth;
-
-    // if(!elementHeight){
-    //   elementHeight = "undefined"
-    // }
-    // if(!elementWidth){
-    //   elementWidth = "undefined"
-    // }
-
+    if (!elementHeight){ elementHeight = 0 }
+    if (!elementWidth){ elementWidth = 0}
       return{
         height: elementHeight,
         width: elementWidth
       };
   }
 
-
+  /**
+   *  Push new text element to TextList.
+   * @param {string} valueA - Text value.
+   * @param {CSS2Object} styleA - CSS of text.
+   * @param {array} positionA  - text position.
+   * @param {array} sizeA  - size of text element.
+   * @param {string} indentA  - text indent.
+   */
+  function pushToTextList(valueA, styleA, positionA, sizeA, indentA) {
+    textList.push({
+      value: valueA,
+      compStyle: styleA,
+      position: positionA,
+      size: sizeA,
+      indent: indentA
+    });
+  }
 
   /**
    * Recursive function for processing text elements from html.
    * @param {Array} nodesList - The first level of html elements.
+   * @param {Object} parent - Parent Node.
    */
   function elementParse(nodesList, parent){
-    let firstText = true; //novej nodelist byl pouzit prvni prvek??
+    let firstText = true; // For first pure text in this 'nodeList'.
+    let lastText = false; // Last added was pure text.
+    let change = false; // Text was added. We need change lastText from previos function call.
     let TextListlength = textList.length;
-    let boxSize = getSize(parent);
-    let boxPosition = getPosition(parent);
-     let lastText = false; // Posledni pridanej text byl #TEXT
-     let change = false;
+    let boxSize = getSize(parent); // dimensions of this text box.
+    let boxPosition = getPosition(parent); // Position of this text box.
+    /** If first was something else like pure text. */
     for(let i = 0; i < nodesList.length; i++){
       if(firstText){
         if(TextListlength !== textList.length){
           firstText = false;
         }
       }
-    // nodesList.forEach(node => {  
       switch(nodesList[i].nodeName.toLowerCase()){
+        /** Skiped HTML elemnts */
         case 'script':
-          break;
-        
         case 'img':
-          break;
-        
         case 'style':
-          break;
-
         case 'noscript':
-          break;
-
         case '#comment':
           break;
 
+        /** Pure text */
         case '#text':
-          if(!isWhiteSpace(nodesList[i].nodeValue)){
-
-            // if(textList.length > 0){
-            // // Pokud je id stejny tak delej to co je tu psano:
-            
-            //   // Zjistim position minulyho pridanyho
-            //   let lastPosition = textList[textList.length-1].position;
-            //   // Zjistim width a height minulyho pridanyho
-            //   let lastWidth = textList[textList.length-1].size;
-            //   // Udelam Tinky Winky
-            //   let textIndent = lastWidth[1] + lastPosition[0];
-            // }
-          if (firstText){ // First text.
-            change = true;
+          if(isWhiteSpace(nodesList[i].nodeValue)){ break; } 
+          /** First pure text in nodeList.*/
+          if (firstText){
             firstText = false;
-            lastText = true;
-            textList.push({
-              value: nodesList[i].nodeValue.trim(),
-              compStyle: window.getComputedStyle(nodesList[i].parentNode),
-              position: getPosition(nodesList[i].parentNode),
-              size: getSize(nodesList[i].parentNode)
-            });
-          }else{ // Dalsi text
-            let lastPosition = textList[textList.length-1].position;
-            let lastWidth = textList[textList.length-1].size;
-            let textIndent = lastWidth.width + lastPosition.x; //odsazeni
-            //nova pozice
-            let newposition = getPosition(nodesList[i].parentNode);
-            newposition.y =  lastPosition.y; //posune po y ose
-            let tmppp =  window.getComputedStyle(nodesList[i].parentNode);
-            textIndent = textIndent - newposition.x;
-            // tmppp.setProperty("text-indent", "76px", important);
-            // tmppp.setTextIndent("76px");
-            // if(lastText){
-            //   textList[textList.length - 1].value = textList[textList.length - 1].value.concat(nodesList[i].nodeValue.trim());
-            // }else{
-            //   lastText = true;
-            if(lastText){
+            lastText = true; 
+            change = true;
+            //value, compStyle, position, size, indentation
+            pushToTextList(nodesList[i].nodeValue.trim(), window.getComputedStyle(nodesList[i].parentNode), getPosition(nodesList[i].parentNode), getSize(nodesList[i].parentNode), null);
+          
+          /** Other pure text in nodeList.*/
+          }else{ 
+             /** Last added was pure text from this nodeList.*/
+            if(lastText){ 
               textList[textList.length - 1].value = textList[textList.length - 1].value.concat(nodesList[i].nodeValue.trim());
             }else{
-              change = true;
               lastText = true;
-              textList.push({
-                value: nodesList[i].nodeValue.trim(),
-                compStyle: tmppp,
-                position: newposition,
-                size: getSize(nodesList[i].parentNode),
-                indent: textIndent
-              });
-             }//last text
-          }
-
-        
+              let lastPosition = textList[textList.length-1].position;
+              let lastWidth = textList[textList.length-1].size;
+              let textIndent = lastWidth.width + lastPosition.x; // Text indentation.
+              let newposition = getPosition(nodesList[i].parentNode);
+              newposition.y =  lastPosition.y; //shift axis Y.
+              textIndent = textIndent - newposition.x;
+              //value, compStyle, position, size, indentation
+              pushToTextList(nodesList[i].nodeValue.trim(),  window.getComputedStyle(nodesList[i].parentNode), newposition, getSize(nodesList[i].parentNode), textIndent);
+            }
           }
           break;
 
         case 'input':
-          if(HiddenTest(nodesList[i])){
-            if(nodesList[i].value != null && !isWhiteSpace(nodesList[i].value)){
-              lastText = false;
-              change = true;
-              firstText = true;
-              textList.push({
-              value: nodesList[i].value.trim(),
-              compStyle: window.getComputedStyle(nodesList[i]),
-              position: getPosition(nodesList[i]),
-              size: getSize(nodesList[i])
-              });
-            }
+          if(!HiddenTest(nodesList[i])){ break; }
+          if(nodesList[i].value != null && !isWhiteSpace(nodesList[i].value)){
+            firstText = true;
+            lastText = false;
+            change = true;
+            //value, compStyle, position, size, indentation
+            pushToTextList(nodesList[i].value.trim(), window.getComputedStyle(nodesList[i]), getPosition(nodesList[i]),  getSize(nodesList[i]), null)
           }
           break;
         
-        case 'dd':
-        console.log("go");
         default:
-        
-          if(HiddenTest(nodesList[i])){
-            if(nodesList[i].nodeName.toLowerCase() === "a"){
-              if(nodesList[i].childNodes.length === 1){
-                let aPosition =getPosition(nodesList[i]);
-                let aSize = getSize(nodesList[i]);
-                if( (aPosition.x + aSize.width - boxPosition.x)> boxSize.width) {
-                  if(nodesList[i].firstChild){
-                    change = true;
-                    textList[textList.length - 1].value = textList[textList.length - 1].value.concat(nodesList[i].firstChild.nodeValue.trim());
-                    break;
-                  }
-                }
-              }
-            }
-            if (nodesList[i].childNodes.length > 0) {
-              tmpMrda = elementParse(nodesList[i].childNodes, nodesList[i]);
-              if(tmpMrda){ // novy je true
-                change = true;
-                if(lastText){ // puvodni je true
-                  lastText = false;
-                  break
-                }else{ // puvodni je false
-                  lastText = false;
-                  break;
-                }
-              }else{ //novy je false
-                if(lastText){ // puvodni je true
-                  lastText = true;
-                  break;
-                }else{ //puvodni je false
-                  lastText = false;
+          if(!HiddenTest(nodesList[i])){ break; }
+          /** <a> elememt */
+          if(nodesList[i].nodeName.toLowerCase() === "a"){
+            if(nodesList[i].childNodes.length === 1){
+              let aPosition = getPosition(nodesList[i]);
+              let aSize = getSize(nodesList[i]);
+              // <a> exceeds the width of the text box.
+              if( (aPosition.x + aSize.width - boxPosition.x)> boxSize.width) {
+                if(nodesList[i].firstChild){
+                  textList[textList.length - 1].value = textList[textList.length - 1].value.concat(nodesList[i].firstChild.nodeValue.trim());
                   break;
                 }
               }
             }
           }
-          break;
-      }
-    } //foreach
+          /** Element with childnodes */
+          if (nodesList[i].childNodes.length > 0) {
+            change = elementParse(nodesList[i].childNodes, nodesList[i]);
+            if(change){ // last added text isn't from this node list.
+              lastText = false;
+              break;
+            }
+          }
+        break;
+      } // switch
+    } // for
     return change;
   }
 
   /** 
    * Creates a text string in json format.
-   * Uses values from the global field textList.
+   * Uses values from the global array textList.
    * @returns {string} jsonOutput - Resulting json file. 
   */
   function jsonCreator(){
@@ -327,32 +287,28 @@ function textAnalysis(hideElement, serverAddress) {
         description: 'Output from Page Analysis WebExtensions app.',
         url: window.location.href,
         backgroundColor: getComputedStyle(document.querySelector('body')).getPropertyValue("background-color")
-    
     }
-  
     jsonOutput = JSON.stringify(jsonOutput);
     jsonOutput = jsonOutput.slice(0,-1).concat(',"text_elements":[{');
     textList.forEach(textElement => {
         let tmpJsonContent = '"Xtext":'+JSON.stringify(textElement.value)+',';  // Elements text.
-        jsonOutput = jsonOutput.concat(tmpJsonContent);
-        let tmp = '"Xposition":'+JSON.stringify(textElement.position)+',';   // Position of Element.
-        jsonOutput = jsonOutput.concat(tmp);
+        let tmpPosition = '"Xposition":'+JSON.stringify(textElement.position)+',';   // Position of Element.
         let tmpSize = '"Xsize":'+JSON.stringify(textElement.size)+','; // Size of Element
-        jsonOutput = jsonOutput.concat(tmpSize);
-        for(i = 0; i < textElement.compStyle.length; i++){
+        jsonOutput = jsonOutput.concat(tmpJsonContent).concat(tmpPosition).concat(tmpSize); // Concate.
+        for(i = 0; i < textElement.compStyle.length; i++){ // Parse Text Elements.
             let compStyleName = textElement.compStyle[i]; 
-            if (compStyleName == "background-color") {
-              continue;
-            }   
-            if (compStyleName == "quotes") {
-              continue;
-            } 
+            /** Styles that we are not interested in */
+            if (compStyleName == "background-color") { continue; }   
+            if (compStyleName == "quotes") { continue; } 
+            /** Indentation */
             if(compStyleName == "text-indent"){
+              if(!textElement.indent) {continue;}
               let jsonStyle = '"'+compStyleName+'":'+JSON.stringify(textElement.indent+'px')+',';
               jsonOutput = jsonOutput.concat(jsonStyle);
+            /** Other Styles */
             }else{          
-            let jsonStyle = '"'+compStyleName+'":'+JSON.stringify(textElement.compStyle.getPropertyValue(compStyleName))+',';
-            jsonOutput = jsonOutput.concat(jsonStyle);
+              let jsonStyle = '"'+compStyleName+'":'+JSON.stringify(textElement.compStyle.getPropertyValue(compStyleName))+',';
+              jsonOutput = jsonOutput.concat(jsonStyle);
             }
         }
         jsonOutput = jsonOutput.slice(0,-1).concat('},{');
