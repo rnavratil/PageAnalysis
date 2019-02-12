@@ -116,7 +116,7 @@ function textAnalysis(hideElement, serverAddress) {
 
   /**
    * Returns the position of the elements on the page.
-   * This algorythm is from:
+   * This is simplifield version algorythm from:
    * https://www.kirupa.com/html5/get_element_position_using_javascript.html
    * @param {string} element - HTML element. 
    */
@@ -125,17 +125,12 @@ function textAnalysis(hideElement, serverAddress) {
     let yPosition = 0;
     
     while (element) {
-      if (element.tagName == "BODY") {
-        // Browser quirks with body/window/document and page scroll.
-        let xScroll = element.scrollLeft || document.documentElement.scrollLeft;
-        let yScroll = element.scrollTop || document.documentElement.scrollTop;
-    
-        xPosition += (element.offsetLeft - xScroll + element.clientLeft);
-        yPosition += (element.offsetTop - yScroll + element.clientTop);
-      } else {
-        // Non BODY elements.
-        xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
-        yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+      if (element.tagName == "BODY") {    
+        xPosition += (element.offsetLeft + element.clientLeft);
+        yPosition += (element.offsetTop  + element.clientTop);
+      } else { 
+        xPosition += (element.offsetLeft + element.clientLeft);
+        yPosition += (element.offsetTop  + element.clientTop);
       }
       element = element.offsetParent;
     }
