@@ -1,4 +1,6 @@
-
+/**
+ * Create run-time message listener.
+ */
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if(request.command === "fromContent" ) {
@@ -9,7 +11,6 @@ chrome.runtime.onMessage.addListener(
         }
     }
 );
-
 
 /**
  * Makes new browser tab with extension result.

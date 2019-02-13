@@ -19,9 +19,7 @@ document.addEventListener("click", (e) => {
             });
             window.close();
         });
-    
     }
-
   });
 
 /** 

@@ -1,18 +1,20 @@
 <?php
- // error_reporting(E_ERROR | E_PARSE);
+error_reporting(E_ERROR | E_PARSE); // hide errors
+
+// response header
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
 
+// handle request
 $a = file_get_contents("php://input");
 $b = json_decode($a);
 
-$dom = new DOMDocument('1.0');//Create new document with specified version number
-
+// create DOM
+$dom = new DOMDocument('1.0');
 
 $id_attribute = $dom->createAttribute('id');
 $body_attribute = $dom->createAttribute('style');
 $charset_attribute = $dom->createAttribute('charset');
-
 
 $body_attribute->value = 'background-color:'.$b->backgroundColor.';';
 $charset_attribute->value = 'UTF-8';
@@ -22,7 +24,6 @@ $head = $dom->createElement('head');
 $meta = $dom->createElement('meta');
 $body = $dom->createElement('body');
 
-
 $dom->appendChild($html);
 $html->appendChild($head);
 $html->appendChild($body);
@@ -30,7 +31,7 @@ $body->appendChild($body_attribute);
 $head->appendChild($meta);
 $meta->appendChild($charset_attribute);
 
-
+// create text element from json
 foreach ($b->text_elements as $text_element) {
     $Xtext = '';
     $div_style = '';
@@ -72,37 +73,25 @@ foreach ($b->text_elements as $text_element) {
             }
         }
     }
-    // Tady pripojim retezec pro absolutni hodnotu pozice elementu+kombo z cyklu
+    // absolute position
     if($div_left_i){
         $div_style = $div_style .'left:' . $div_left . 'px;';
     }
     if($div_top_i){
         $div_style = $div_style . 'top:' . $div_top . 'px;';
     }
-    // Tady to udelam pro jeho rozmery
+    // div size
     $div_style = $div_style . 'width:' . $div_width . 'px;';
     $div_style = $div_style . 'height:' . $div_height . 'px;';
- // width je nastaveny na auto coz je shit a musime to zmenit. Muze se stat ze uz tam rozmery budou
 
-
-if(is_string($Xtext)){
-    $div = $dom->createElement('div',htmlentities($Xtext));
-}
-   // $div = $dom->createElement('div',$Xtext);
+    // text
+    if(is_string($Xtext)){
+        $div = $dom->createElement('div',htmlentities($Xtext));
+    }
     $div_style_attribute->value = $div_style;
     $div->appendChild($div_style_attribute);
     $body->appendChild($div);
-
 }
 
-
-
-  //Outputs the generated source code
-//$css_text = 'p{color:#ff00ff;}';
-//$style = $dom->createElement('style', $css_text);//Create new <style> tag with the css tags
-//$domAttribute = $dom->createAttribute('type');//Create the new attribute 'type'
-//$domAttribute->value = 'text/css';//Add value to attribute
-//$style->appendChild($domAttribute);//Add the attribute to the style tag
-//$dom->appendChild($style);//Add the style tag to document
- echo $dom->saveHTML();
+echo $dom->saveHTML();
 ?>

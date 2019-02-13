@@ -18,7 +18,7 @@ document.addEventListener("click", (e) => {
           server: serverAddress
       });
       window.close();
-  });
+    });
   }
 });
 

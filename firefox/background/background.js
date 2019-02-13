@@ -1,8 +1,7 @@
 /**
  * Create run-time message listener.
  */
-chrome.runtime.onMessage.addListener(handleMessage)
-|| browser.runtime.onMessage.addListener(handleMessage);
+browser.runtime.onMessage.addListener(handleMessage);
 
 /**
  * Handle messages.

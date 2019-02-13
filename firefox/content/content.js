@@ -1,7 +1,7 @@
 /**
  * Create message listener.
  */
-chrome.runtime.onMessage.addListener(
+browser.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
       if(request.message === "fromPopup" ) {
           textAnalysis(request.property, request.server);
@@ -63,6 +63,7 @@ function textAnalysis(hideElement, serverAddress) {
     }
     return true;
   }
+  
   /**
    * Stored string value to local storage.
    * @param {string} html - HTML from server response.
