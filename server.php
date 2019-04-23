@@ -24,6 +24,8 @@ $head = $dom->createElement('head');
 $meta = $dom->createElement('meta');
 $body = $dom->createElement('body');
 
+$title =$dom->createElement('title', $b->url);
+
 $dom->appendChild($html);
 $html->appendChild($head);
 $html->appendChild($body);
@@ -31,6 +33,7 @@ $body->appendChild($body_attribute);
 $head->appendChild($meta);
 $meta->appendChild($charset_attribute);
 
+$head->appendChild($title);
 // create text element from json
 foreach ($b->text_elements as $text_element) {
     $Xtext = '';
