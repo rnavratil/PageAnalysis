@@ -2,14 +2,13 @@
  * Set new html body for result.html.
  */
 chrome.storage.local.get(['htmlFromServer'], function(result) {
-    responseHTML = result.htmlFromServer;
-    responseHTML = responseHTML.substring(41).slice(0,-15); // body+divs
-    bodyHTML = /<.*?>/g.exec(responseHTML); // [0] je body
-    newBody = responseHTML.substring(bodyHTML[0].length); //divs
-    backgroundColor =  /".*?"/g.exec(bodyHTML[0]);
-    backgroundColor1 = backgroundColor[0].substring(18).slice(0,-2);
-    document.body.innerHTML = newBody;
-    document.body.style.background = backgroundColor1;
+    let parser = new DOMParser();
+    let HTMLdoc = parser.parseFromString(result.htmlFromServer, "text/html");
+    let newBody = HTMLdoc.querySelectorAll('body');
+    document.body = newBody[0];
+    document.title = 'PA -';
+    document.title += ' '.concat(HTMLdoc.querySelector('title').innerText);
+    
 });
 
 /**

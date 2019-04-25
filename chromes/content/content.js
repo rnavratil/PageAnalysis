@@ -126,18 +126,13 @@ function textAnalysis(hideElement, serverAddress){
         let yPosition = 0;
         
         while (element) {
-        if (element.tagName == "BODY") {    
             xPosition += (element.offsetLeft + element.clientLeft);
             yPosition += (element.offsetTop  + element.clientTop);
-        } else { 
-            xPosition += (element.offsetLeft + element.clientLeft);
-            yPosition += (element.offsetTop  + element.clientTop);
-        }
-        element = element.offsetParent;
+            element = element.offsetParent;
         }
         return {
-        x: xPosition,
-        y: yPosition
+            x: xPosition,
+            y: yPosition
         };
     }
 
@@ -180,7 +175,7 @@ function textAnalysis(hideElement, serverAddress){
    * @param {Object} parent - Parent Node.
    */
   function elementParse(nodesList, parent){
-    let firstText = true; // For first pure text in this 'nodeList'.
+    let firstText = true; // For first pure text in this 'nodesList'.
     let lastText = false; // Last added was pure text.
     let change = false; // Text was added. We need change lastText from previos function call.
     let TextListlength = textList.length;
