@@ -7,7 +7,7 @@ chrome.storage.local.get(['htmlFromServer'], function(result) {
     let newBody = HTMLdoc.querySelectorAll('body');
     document.body = newBody[0];
     document.title = 'PA -';
-    document.title += ' '.concat(HTMLdoc.querySelector('title').innerText.substring(12).slice(0,-1));
+    document.title += ' '.concat(HTMLdoc.querySelector('title').innerText);
     
 });
 
