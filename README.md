@@ -1,4 +1,6 @@
-# PageAnalysis
+# SCHOOL PROJECT
+
+## PageAnalysis
 
 The extension is compatible with ***Google Chrome*** and ***Mozilla FireFox*** web browsers.  
   
